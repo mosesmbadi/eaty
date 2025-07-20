@@ -6,6 +6,8 @@ import '../db/meal_database.dart';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -53,17 +55,46 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Generated Meal'),
-        content: Text(mealName),
+        content: Text(
+          mode == 'online'
+              ? '[1m$mealName\n\n(generated from https://www.themealdb.com/api/json/v1/1/randomselection.php)'
+              : mealName,
+        ),
         actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK'))],
       ),
     );
   }
 
   Future<List<String>> _fetchFoodsFromApi() async {
-    // TODO: Implement actual API call
-    // This is a placeholder that returns some example foods
-    await Future.delayed(const Duration(seconds: 1));
-    return ['Rice', 'Chicken', 'Spinach'];
+    // Example: Fetch random meals from themealdb.com
+    const apiUrl = 'https://www.themealdb.com/api/json/v1/1/randomselection.php';
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['meals'] != null) {
+          List<String> foods = [];
+          for (var meal in data['meals']) {
+            if (meal['strMeal'] != null) {
+              foods.add(meal['strMeal']);
+            }
+          }
+          // Randomize and pick 3
+          foods.shuffle();
+          if (foods.length >= 3) {
+            return foods.sublist(0, 3);
+          } else if (foods.isNotEmpty) {
+            return foods;
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching foods from API: $e');
+    }
+    // Fallback example foods, randomized
+    List<String> fallback = ['Rice', 'Chicken', 'Spinach'];
+    fallback.shuffle();
+    return fallback;
   }
 
   String _period = 'Day';
