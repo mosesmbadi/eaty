@@ -5,6 +5,7 @@ import '../db/meal_database.dart';
 import '../db/meal_database.dart';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -17,13 +18,19 @@ class _HomePageState extends State<HomePage> {
   final List<String> categories = ['Carbs', 'Proteins', 'Vitamins'];
 
   Future<void> _generateMeal() async {
-    final random = Random();
+    final prefs = await SharedPreferences.getInstance();
+    final mode = prefs.getString('meal_mode') ?? 'own';
     List<String> selectedFoods = [];
-    for (var cat in categories) {
-      final foods = await MealDatabase.instance.getMealsByCategory(cat);
-      if (foods.isNotEmpty) {
-        final food = foods[random.nextInt(foods.length)];
-        selectedFoods.add(food.name);
+    if (mode == 'online') {
+      selectedFoods = await _fetchFoodsFromApi();
+    } else {
+      final random = Random();
+      for (var cat in categories) {
+        final foods = await MealDatabase.instance.getMealsByCategory(cat);
+        if (foods.isNotEmpty) {
+          final food = foods[random.nextInt(foods.length)];
+          selectedFoods.add(food.name);
+        }
       }
     }
     if (selectedFoods.length < 3) {
@@ -52,6 +59,13 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<List<String>> _fetchFoodsFromApi() async {
+    // TODO: Implement actual API call
+    // This is a placeholder that returns some example foods
+    await Future.delayed(const Duration(seconds: 1));
+    return ['Rice', 'Chicken', 'Spinach'];
+  }
+
   String _period = 'Day';
   DateTime _selectedDate = DateTime.now();
   Map<String, int> _categoryCounts = {'Carbs': 0, 'Proteins': 0, 'Vitamins': 0};
@@ -76,14 +90,28 @@ class _HomePageState extends State<HomePage> {
       start = DateTime(_selectedDate.year);
       end = DateTime(_selectedDate.year + 1);
     }
-    Map<String, int> counts = {'Carbs': 0, 'Proteins': 0, 'Vitamins': 0};
+    // Get all foods for category lookup
+    Map<String, String> foodToCategory = {};
     for (final cat in categories) {
-      final meals = await MealDatabase.instance.getMealsByCategory(cat);
-      final filtered = meals.where((m) {
-        final date = DateTime.tryParse(m.date);
-        return date != null && date.isAfter(start.subtract(const Duration(milliseconds: 1))) && date.isBefore(end);
-      }).toList();
-      counts[cat] = filtered.length;
+      final foods = await MealDatabase.instance.getMealsByCategory(cat);
+      for (final food in foods) {
+        foodToCategory[food.name.trim()] = food.category;
+      }
+    }
+    // Count categories in generated meals
+    Map<String, int> counts = {for (var cat in categories) cat: 0};
+    final generatedMeals = await MealDatabase.instance.getMealsByCategory('Generated');
+    for (final meal in generatedMeals) {
+      final date = DateTime.tryParse(meal.date);
+      if (date == null || date.isBefore(start) || date.isAfter(end.subtract(const Duration(milliseconds: 1)))) continue;
+      final foods = meal.name.split(',');
+      for (final food in foods) {
+        final foodName = food.trim();
+        final cat = foodToCategory[foodName];
+        if (cat != null && counts.containsKey(cat)) {
+          counts[cat] = counts[cat]! + 1;
+        }
+      }
     }
     setState(() {
       _categoryCounts = counts;
@@ -159,62 +187,56 @@ await _fetchCategoryCounts();
             ? const Center(child: CircularProgressIndicator())
             : Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: SizedBox(
-                  height: 180,
-                  child: BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      maxY: _categoryCounts.values.isNotEmpty
-                          ? (_categoryCounts.values.reduce((a, b) => a > b ? a : b).toDouble() + 1)
-                          : 5,
-                      barTouchData: BarTouchData(enabled: true),
-                      titlesData: FlTitlesData(
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            reservedSize: 28,
-                            getTitlesWidget: (value, meta) => Text(value.toInt().toString(), style: const TextStyle(fontSize: 12)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: categories.map((cat) {
+                    final color = cat == 'Carbs'
+                        ? Colors.orange
+                        : cat == 'Proteins'
+                            ? Colors.blue
+                            : Colors.green;
+                    final int value = _categoryCounts[cat] ?? 0;
+                    final int maxValue = _categoryCounts.values.isNotEmpty
+                        ? _categoryCounts.values.reduce((a, b) => a > b ? a : b)
+                        : 1;
+                    final double barFraction = maxValue > 0 ? value / maxValue : 0;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 80,
+                            child: Text(cat, style: const TextStyle(fontWeight: FontWeight.bold)),
                           ),
-                        ),
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (value, meta) {
-                              final idx = value.toInt();
-                              if (idx < 0 || idx >= categories.length) return const SizedBox.shrink();
-                              return Text(categories[idx], style: const TextStyle(fontSize: 12));
-                            },
-                          ),
-                        ),
-                        rightTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        topTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                      ),
-                      borderData: FlBorderData(show: false),
-                      barGroups: List.generate(categories.length, (i) {
-                        final cat = categories[i];
-                        final color = cat == 'Carbs'
-                            ? Colors.orange
-                            : cat == 'Proteins'
-                                ? Colors.blue
-                                : Colors.green;
-                        return BarChartGroupData(
-                          x: i,
-                          barRods: [
-                            BarChartRodData(
-                              toY: _categoryCounts[cat]?.toDouble() ?? 0,
-                              color: color,
-                              borderRadius: BorderRadius.circular(8),
-                              width: 32,
+                          Expanded(
+                            child: Stack(
+                              children: [
+                                Container(
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    color: color.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                FractionallySizedBox(
+                                  widthFactor: barFraction,
+                                  child: Container(
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                      color: color,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        );
-                      }),
-                    ),
-                  ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(value.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
       ],
