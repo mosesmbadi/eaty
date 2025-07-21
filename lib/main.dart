@@ -163,18 +163,23 @@ if (listData.length == 1 && listData[0].toString().length > 100) {
     for (var col in schema) {
       debugPrint(col.toString());
     }
-    // Print all rows
-    final allRows = await realDb.rawQuery('SELECT * FROM foods');
-    debugPrint('ALL ROWS IN FOODS TABLE:');
-    for (var row in allRows) {
-      debugPrint(row.toString());
-    }
-    debugPrint('Inserted $success foods, $fail failures.');
-    // Print all app foods
-    final appFoods = await db.getFoods(appFoods: true);
-    debugPrint('Foods in DB with isAppFood==1:');
-    for (final f in appFoods) {
-      debugPrint('  ${f.name} (${f.category})');
+
+    // Insert 10 user foods per category for testing
+    final categories = ['Carbohydrate', 'Protein', 'Vegetable'];
+    for (final cat in categories) {
+      int count = 0;
+      for (var i = 1; i < listData.length && count < 10; i++) {
+        var row = listData[i];
+        if (row[1].toString().trim() == cat) {
+          try {
+            await db.createFood(row[0].toString(), row[1].toString(), isAppFood: 0);
+            count++;
+          } catch (e) {
+            debugPrint('Failed to insert user food for $cat: $row, error: $e');
+          }
+        }
+      }
+      debugPrint('Inserted $count user foods for $cat');
     }
   } catch (e) {
     debugPrint('Error loading sample foods: $e');

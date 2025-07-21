@@ -49,8 +49,16 @@ class _HomePageState extends State<HomePage> {
           }
         }
       } else {
+        // Map UI categories to DB categories for user foods
+        final Map<String, String> ownCategoryMap = {
+          'Carbs': 'Carbohydrate',
+          'Proteins': 'Protein',
+          'Vitamins': 'Vegetable',
+        };
         for (var cat in categories) {
-          final foods = await MealDatabase.instance.getMealsByCategory(cat);
+          final dbCat = ownCategoryMap[cat] ?? cat;
+          final foods = await MealDatabase.instance.getFoods(appFoods: false, category: dbCat);
+          debugPrint('OwnData: UI category "$cat" → DB category "$dbCat", found ${foods.length} foods: ${foods.map((f) => f.name).toList()}');
           if (foods.isNotEmpty) {
             final food = foods[random.nextInt(foods.length)];
             selectedFoods.add(food.name);
