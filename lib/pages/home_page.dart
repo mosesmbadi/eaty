@@ -27,11 +27,34 @@ class _HomePageState extends State<HomePage> {
       selectedFoods = await _fetchFoodsFromApi();
     } else {
       final random = Random();
-      for (var cat in categories) {
-        final foods = await MealDatabase.instance.getMealsByCategory(cat);
-        if (foods.isNotEmpty) {
-          final food = foods[random.nextInt(foods.length)];
-          selectedFoods.add(food.name);
+      if (mode == 'app') {
+        final dbPath = (await MealDatabase.instance.database).path;
+        debugPrint('DB PATH (query): ' + dbPath);
+        final appFoods = await MealDatabase.instance.getFoods(appFoods: true);
+        debugPrint('ALL APP FOODS:');
+        for (var f in appFoods) {
+          debugPrint('Food: \'${f.name}\', Category: "${f.category}"');
+        }
+        final Map<String, String> appCategoryMap = {
+          'Carbs': 'Carbohydrate',
+          'Proteins': 'Protein',
+          'Vitamins': 'Vegetable',
+        };
+        for (var cat in categories) {
+          final foodsInCat = appFoods.where((f) => f.category == appCategoryMap[cat]).toList();
+          debugPrint('AppData: $cat → ${appCategoryMap[cat]}, found ${foodsInCat.length} foods: ${foodsInCat.map((f) => f.name).toList()}');
+          if (foodsInCat.isNotEmpty) {
+            final food = foodsInCat[random.nextInt(foodsInCat.length)];
+            selectedFoods.add(food.name);
+          }
+        }
+      } else {
+        for (var cat in categories) {
+          final foods = await MealDatabase.instance.getMealsByCategory(cat);
+          if (foods.isNotEmpty) {
+            final food = foods[random.nextInt(foods.length)];
+            selectedFoods.add(food.name);
+          }
         }
       }
     }

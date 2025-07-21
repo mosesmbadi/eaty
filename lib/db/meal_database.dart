@@ -130,10 +130,16 @@ class MealDatabase {
 
   Future<List<Food>> getFoods({bool appFoods = false, String? category}) async {
     final db = await instance.database;
+    String where = 'isAppFood = ?';
+    List<dynamic> whereArgs = [appFoods ? 1 : 0];
+    if (category != null) {
+      where += ' AND category = ?';
+      whereArgs.add(category);
+    }
     final maps = await db.query(
       'foods',
-      where: 'isAppFood = ? AND category = ?',
-      whereArgs: [appFoods ? 1 : 0, category],
+      where: where,
+      whereArgs: whereArgs,
     );
     return maps.map((f) => Food.fromMap(f)).toList();
   }

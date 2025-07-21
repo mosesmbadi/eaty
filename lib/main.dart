@@ -144,6 +144,8 @@ if (listData.length == 1 && listData[0].toString().length > 100) {
     }
     debugPrint('Parsed CSV rows: \u001b[32m${listData.length}\u001b[0m');
     final db = MealDatabase.instance;
+    final realDb = await db.database;
+    debugPrint('DB PATH (insert): ' + realDb.path);
     int success = 0, fail = 0;
     for (var i = 1; i < listData.length; i++) {
       var row = listData[i];
@@ -154,6 +156,18 @@ if (listData.length == 1 && listData[0].toString().length > 100) {
         debugPrint('Failed to insert row $i: $row, error: $e');
         fail++;
       }
+    }
+    // Print schema
+    final schema = await realDb.rawQuery('PRAGMA table_info(foods)');
+    debugPrint('FOODS TABLE SCHEMA:');
+    for (var col in schema) {
+      debugPrint(col.toString());
+    }
+    // Print all rows
+    final allRows = await realDb.rawQuery('SELECT * FROM foods');
+    debugPrint('ALL ROWS IN FOODS TABLE:');
+    for (var row in allRows) {
+      debugPrint(row.toString());
     }
     debugPrint('Inserted $success foods, $fail failures.');
     // Print all app foods
