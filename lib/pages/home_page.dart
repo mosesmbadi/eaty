@@ -55,7 +55,11 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Generated Meal'),
-        content: Text(mealName),
+        content: Text(
+          mode == 'online'
+              ? '[1m$mealName\n\n(generated from https://www.themealdb.com/api/json/v1/1/randomselection.php)'
+              : mealName,
+        ),
         actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('OK'))],
       ),
     );
