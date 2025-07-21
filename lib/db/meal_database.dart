@@ -28,6 +28,32 @@ class Meal {
   }
 }
 
+class Food {
+  final int? id;
+  final String name;
+  final String category;
+  final int isAppFood; // 0 for user food, 1 for app food
+
+  Food({this.id, required this.name, required this.category, this.isAppFood = 0});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'category': category,
+      'isAppFood': isAppFood,
+    };
+  }
+
+  factory Food.fromMap(Map<String, dynamic> map) {
+    return Food(
+      id: map['id'],
+      name: map['name'],
+      category: map['category'],
+      isAppFood: map['isAppFood'],
+    );
+  }
+}
 
 class MealDatabase {
   static final MealDatabase instance = MealDatabase._init();
@@ -47,7 +73,7 @@ class MealDatabase {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -62,11 +88,30 @@ class MealDatabase {
         date TEXT NOT NULL
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE foods (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        category TEXT NOT NULL,
+        isAppFood INTEGER NOT NULL DEFAULT 0
+      )
+    ''');
   }
 
   Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute("ALTER TABLE meals ADD COLUMN date TEXT NOT NULL DEFAULT ''");
+    }
+    if (oldVersion < 3) {
+      await db.execute('''
+        CREATE TABLE foods (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          category TEXT NOT NULL,
+          isAppFood INTEGER NOT NULL DEFAULT 0
+        )
+      ''');
     }
   }
 
@@ -74,6 +119,23 @@ class MealDatabase {
     final db = await instance.database;
     final id = await db.insert('meals', meal.toMap());
     return meal.copyWith(id: id);
+  }
+
+  Future<Food> createFood(String name, String category, {int isAppFood = 0}) async {
+    final db = await instance.database;
+    final food = Food(name: name, category: category, isAppFood: isAppFood);
+    final id = await db.insert('foods', food.toMap());
+    return food.copyWith(id: id);
+  }
+
+  Future<List<Food>> getFoods({bool appFoods = false, String? category}) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      'foods',
+      where: 'isAppFood = ? AND category = ?',
+      whereArgs: [appFoods ? 1 : 0, category],
+    );
+    return maps.map((f) => Food.fromMap(f)).toList();
   }
 
   Future<List<Meal>> getMealsByCategory(String category) async {
@@ -105,6 +167,17 @@ extension MealCopyWith on Meal {
       name: name ?? this.name,
       category: category ?? this.category,
       date: date ?? this.date,
+    );
+  }
+}
+
+extension FoodCopyWith on Food {
+  Food copyWith({int? id, String? name, String? category, int? isAppFood}) {
+    return Food(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      category: category ?? this.category,
+      isAppFood: isAppFood ?? this.isAppFood,
     );
   }
 }

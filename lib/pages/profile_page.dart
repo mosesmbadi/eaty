@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -51,6 +49,12 @@ class _ProfilePageState extends State<ProfilePage> {
           value: 'own',
           groupValue: _mode,
           onChanged: (val) => _setMode('own'),
+        ),
+        RadioListTile<String>(
+          title: const Text('App Data'),
+          value: 'app',
+          groupValue: _mode,
+          onChanged: (val) => _setMode('app'),
         ),
         RadioListTile<String>(
           title: const Text('Online (External Foods API)'),

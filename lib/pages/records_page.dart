@@ -1,6 +1,7 @@
 
 
 import '../db/meal_database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RecordsPage extends StatefulWidget {
   const RecordsPage({Key? key}) : super(key: key);
@@ -21,24 +22,38 @@ class _RecordsPageState extends State<RecordsPage> {
   }
 
   Future<void> _fetchMeals() async {
-    final stopwatch = Stopwatch()..start();
-    final Map<String, List<Meal>> data = {};
+  final stopwatch = Stopwatch()..start();
+  final prefs = await SharedPreferences.getInstance();
+  final String mode = prefs.getString('meal_mode') ?? 'own';
+  final Map<String, List<Meal>> data = {};
+
+  if (mode == 'app') {
+    // Generate "meals" dynamically from app foods grouped by category
+    final List<Food> appFoods = await MealDatabase.instance.getFoods(appFoods: true);
+    for (var cat in categories) {
+      final foodsInCat = appFoods.where((f) => f.category == cat).toList();
+      // For demo: treat each food as a "meal" (since no app meals table exists)
+      data[cat] = foodsInCat.map((f) => Meal(id: null, name: f.name, category: f.category, date: "")).toList();
+    }
+  } else {
     for (var cat in categories) {
       data[cat] = await MealDatabase.instance.getMealsByCategory(cat);
     }
-    stopwatch.stop();
-    debugPrint('Fetched all meals in: [32m[1m[4m[93m[41m[5m[0m[1m${stopwatch.elapsedMilliseconds}ms[0m');
-    if (stopwatch.elapsedMilliseconds > 500) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Loading meals took ${stopwatch.elapsedMilliseconds}ms')),
-      );
-    }
-    setState(() {
-      mealsByCategory = data;
-      isLoading = false;
-    });
   }
+  stopwatch.stop();
+  debugPrint('Fetched all meals in: [32m[1m[4m[93m[41m[5m[0m[1m${stopwatch.elapsedMilliseconds}ms[0m');
+  if (stopwatch.elapsedMilliseconds > 500) {
+    // ignore: use_build_context_synchronously
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Loading meals took ${stopwatch.elapsedMilliseconds}ms')),
+    );
+  }
+  setState(() {
+    mealsByCategory = data;
+    isLoading = false;
+  });
+}
+
 
   Future<void> _addMeal(String category) async {
     final controller = TextEditingController();

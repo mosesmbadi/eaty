@@ -1,0 +1,203 @@
+name,category
+Ugali,Carbohydrate
+Rice,Carbohydrate
+Chapati,Carbohydrate
+Githeri,Carbohydrate
+Mukimo,Carbohydrate
+Irio,Carbohydrate
+Matoke,Carbohydrate
+Mahindi Choma,Carbohydrate
+Arrowroots,Carbohydrate
+Sweet Potato,Carbohydrate
+Irish Potato,Carbohydrate
+Cassava,Carbohydrate
+Millet,Carbohydrate
+Sorghum,Carbohydrate
+Wali wa Nazi,Carbohydrate
+Pilau,Carbohydrate
+Biryani,Carbohydrate
+Uji,Carbohydrate
+Nduma (Arrowroots),Carbohydrate
+Ngwaci (Sweet Potato),Carbohydrate
+Viazi Karai,Carbohydrate
+Wimbi (Millet Flour),Carbohydrate
+Lafun,Carbohydrate
+Maize Flour,Carbohydrate
+Wheat Flour,Carbohydrate
+Plantain Flour,Carbohydrate
+Yam Flour,Carbohydrate
+Porridge,Carbohydrate
+Nyama Choma (Goat),Protein
+Nyama Choma (Beef),Protein
+Kuku Choma (Chicken),Protein
+Samaki Choma (Fish),Protein
+Goat Stew,Protein
+Beef Stew,Protein
+Chicken Stew,Protein
+Fish Stew,Protein
+Ingoho (Luhya Chicken),Protein
+Mutura,Protein
+Mishkaki,Protein
+Tender Fry,Protein
+Minced Meat,Protein
+Omena (Small Fish),Protein
+Tilapia Fry,Protein
+Fish Curry,Protein
+Mursik,Protein
+Milk,Protein
+Yogurt,Protein
+Sausages (local),Protein
+Eggs,Protein
+Lentils,Protein
+Green Grams (Ndengu),Protein
+Cowpeas (Kunde),Protein
+Black Beans (Njahi),Protein
+Red Kidney Beans (Maharagwe),Protein
+Pigeon Peas (Mbaazi),Protein
+Chickpeas,Protein
+Groundnuts,Protein
+Peanuts,Protein
+Sukuma Wiki,Vegetable
+Managu (African Nightshade),Vegetable
+Terere (Amaranth Leaves),Vegetable
+Kunde (Cowpeas Leaves),Vegetable
+Mrenda (Jute Mallow),Vegetable
+Pumpkin Leaves (Kahurura),Vegetable
+Cabbage,Vegetable
+Spinach,Vegetable
+Tomatoes,Vegetable
+Onions,Vegetable
+Carrots,Vegetable
+Bell Peppers,Vegetable
+Chilli Pepper,Vegetable
+Garlic,Vegetable
+Ginger,Vegetable
+Kachumbari,Vegetable
+African Eggplant,Vegetable
+Dhania (Coriander),Vegetable
+Spring Onions,Vegetable
+Green Beans,Vegetable
+Peas,Vegetable
+Zucchini,Vegetable
+Cucumber,Vegetable
+Avocado,Vegetable/Fat
+Palm Oil,Fat
+Groundnut Oil,Fat
+Coconut Oil,Fat
+Sunflower Oil,Fat
+Sesame Oil,Fat
+Ghee,Fat
+Margarine,Fat
+Cooking Fat,Fat
+Mabuyu,Snack/Sweet
+Mandazi,Snack/Sweet
+Samosa,Snack/Sweet
+Bhajias,Snack/Sweet
+Kaimati,Snack/Sweet
+Mahamri,Snack/Sweet
+Chips Masala,Snack/Side
+Viazi Karai,Snack/Side
+Mutura,Snack/Protein
+Roasted Maize,Snack/Carbohydrate
+Plantain Crisps,Snack
+Cassava Crisps,Snack
+Puff Puff,Snack
+Chin Chin,Snack
+Kaimati,Snack
+Kashata (Coconut Brittle),Snack/Sweet
+Kalimati (Crispy Sesame Sticks),Snack/Sweet
+Kamba (Wheat Flour Twists),Snack
+Mkate wa Sinia (Swahili Rice Bread),Bread/Snack
+Vitumbua (Rice Pancakes),Snack/Sweet
+Maize on the Cob (boiled/roasted),Snack/Carbohydrate
+Roasted Groundnuts,Snack/Protein
+Roasted Cashew Nuts,Snack/Protein
+Roasted Macadamia Nuts,Snack/Protein
+Tropical Fruit Salad,Fruit
+Mango,Fruit
+Pineapple,Fruit
+Banana,Fruit
+Orange,Fruit
+Passion Fruit,Fruit
+Watermelon,Fruit
+Guava,Fruit
+Papaya,Fruit
+Tree Tomato,Fruit
+Avocado (fruit),Fruit
+Custard Apple (Soursop),Fruit
+Baobab Fruit,Fruit
+Tamarind,Fruit
+Desert Date,Fruit
+Marula Fruit,Fruit
+Mobola Plum,Fruit
+Wild Raspberry,Fruit
+Wild Fig,Fruit
+African Fan Palm Fruit,Fruit
+Doum Palm Fruit,Fruit
+Waterberry,Fruit
+Jackal Berry,Fruit
+Natal Plum,Fruit
+Chai (Kenyan Tea),Beverage
+Coffee,Beverage
+Mursik (Fermented Milk),Beverage
+Madafu (Coconut Water),Beverage
+Tamarind Juice,Beverage
+Baobab Drink,Beverage
+Sugarcane Juice,Beverage
+Mango Juice,Beverage
+Passion Fruit Juice,Beverage
+Pineapple Juice,Beverage
+Orange Juice,Beverage
+Zobo (Hibiscus Drink),Beverage
+Kunywa (Traditional Brew),Beverage
+Busaa (Millet Beer),Beverage
+Chang'aa (Local Spirit),Beverage
+Banana Beer,Beverage
+Ginger Beer,Beverage
+Hot Chocolate,Beverage
+Porridge (Uji),Beverage/Breakfast
+Pepper Soup,Soup/Stew
+Light Soup,Soup/Stew
+Githeri Stew,Soup/Stew
+Maharagwe Stew,Soup/Stew
+Chicken Curry,Soup/Stew
+Beef Curry,Soup/Stew
+Fish Curry,Soup/Stew
+Kuku Paka,Soup/Stew
+Kenyan Stew (General),Soup/Stew
+Okra Stew,Soup/Stew
+Tomato Stew,Soup/Stew
+Cabbage Stew,Soup/Stew
+Salt,Condiment
+Sugar,Condiment
+Black Pepper,Condiment
+Chilli Powder,Condiment
+Garam Masala,Condiment/Spice Blend
+Cumin,Spice
+Coriander Powder,Spice
+Turmeric,Spice
+Paprika,Spice
+Cardamom,Spice
+Cinnamon,Spice
+Cloves,Spice
+Ginger Powder,Spice
+Garlic Powder,Spice
+Bay Leaves,Spice
+Curry Powder,Spice Blend
+Mchuzi Mix,Spice Blend
+Tomato Sauce,Condiment
+Chilli Sauce,Condiment
+Tamarind Chutney,Condiment
+Vinegar,Condiment
+Lemon Juice,Condiment
+Lime Juice,Condiment
+Honey,Sweetener
+Sweet Potato Coconut Pudding,Dessert
+Mandazi,Dessert
+Banana and Oat Pancakes,Dessert
+Coconut Macaroons (Biskuti ya Nazi),Dessert
+Fruit Kebab,Dessert
+Traditional Yogurt (Pudding ya Maziwa Lala),Dessert
+Ugali Cakes,Dessert
+Tusker Bites,Snack/Dessert
+Kaimati,Dessert

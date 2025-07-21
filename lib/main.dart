@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:csv/csv.dart';
+import 'db/meal_database.dart';
 import 'pages/home_page.dart';
 import 'pages/foods_page.dart';
 import 'pages/meals_page.dart';
@@ -10,7 +14,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +71,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-
   final String title;
 
   @override
@@ -77,6 +79,94 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFirstLaunch();
+  }
+
+  Future<void> _checkFirstLaunch() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isFirstLaunch = prefs.getBool('firstLaunch') ?? true;
+
+    if (isFirstLaunch) {
+      _showFirstLaunchDialog();
+      await prefs.setBool('firstLaunch', false);
+    }
+  }
+
+  Future<void> _showFirstLaunchDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Load Sample Foods?'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Would you like to load a list of sample foods to get started?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                _loadSampleFoods();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _loadSampleFoods() async {
+  try {
+    final rawData = await rootBundle.loadString('assets/data/foods.csv');
+    debugPrint('RAW CSV DATA:\n' + rawData);
+    final listData = CsvToListConverter(eol: '\n').convert(rawData);
+if (listData.length == 1 && listData[0].toString().length > 100) {
+  debugPrint('WARNING: CSV parsing failed, check line endings in foods.csv!');
+}
+    debugPrint('PARSED CSV DATA:');
+    for (var i = 0; i < listData.length; i++) {
+      debugPrint('Row $i: ${listData[i]}');
+    }
+    debugPrint('Parsed CSV rows: \u001b[32m${listData.length}\u001b[0m');
+    final db = MealDatabase.instance;
+    int success = 0, fail = 0;
+    for (var i = 1; i < listData.length; i++) {
+      var row = listData[i];
+      try {
+        await db.createFood(row[0].toString(), row[1].toString(), isAppFood: 1);
+        success++;
+      } catch (e) {
+        debugPrint('Failed to insert row $i: $row, error: $e');
+        fail++;
+      }
+    }
+    debugPrint('Inserted $success foods, $fail failures.');
+    // Print all app foods
+    final appFoods = await db.getFoods(appFoods: true);
+    debugPrint('Foods in DB with isAppFood==1:');
+    for (final f in appFoods) {
+      debugPrint('  ${f.name} (${f.category})');
+    }
+  } catch (e) {
+    debugPrint('Error loading sample foods: $e');
+  }
+}
+
 
   void _onItemTapped(int index) {
     setState(() {
@@ -93,7 +183,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
