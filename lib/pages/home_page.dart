@@ -6,6 +6,8 @@ import '../db/meal_database.dart';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -60,10 +62,38 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<String>> _fetchFoodsFromApi() async {
-    // TODO: Implement actual API call
-    // This is a placeholder that returns some example foods
-    await Future.delayed(const Duration(seconds: 1));
-    return ['Rice', 'Chicken', 'Spinach'];
+    // Example using Edamam Food Database API (replace with your credentials)
+    // https://developer.edamam.com/edamam-docs-food-database-api
+    // NOTE: Replace 'demo' with your real app_id and app_key
+    const appId = 'demo';
+    const appKey = 'demo';
+
+    final queries = {
+      'Carbs': 'rice',
+      'Proteins': 'chicken',
+      'Vitamins': 'spinach',
+    };
+
+    List<String> foods = [];
+    for (final entry in queries.entries) {
+      final response = await http.get(Uri.parse(
+        'https://api.edamam.com/api/food-database/v2/parser?app_id=$appId&app_key=$appKey&ingr=${Uri.encodeComponent(entry.value)}'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['parsed'] != null && data['parsed'].isNotEmpty) {
+          final foodName = data['parsed'][0]['food']['label'];
+          foods.add(foodName);
+        } else if (data['hints'] != null && data['hints'].isNotEmpty) {
+          final foodName = data['hints'][0]['food']['label'];
+          foods.add(foodName);
+        } else {
+          foods.add(entry.value);
+        }
+      } else {
+        foods.add(entry.value);
+      }
+    }
+    return foods;
   }
 
   String _period = 'Day';
